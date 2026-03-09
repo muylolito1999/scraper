@@ -1,0 +1,56 @@
+{
+  "success": true,
+  "result": {
+    "categoria": "SUPER COPPA MASCHILE",
+    "fasi": [
+      {
+        "fase": "Finale",
+        "visualizzazione": "4",
+        "gironi": [
+          {
+            "girone": "Girone 1",
+            "comunicati": [
+              {
+                "comunicato": "SC/01/GS",
+                "data_comunicato": "01/10/2025",
+                "tipi_incontro": [
+                  {
+                    "tipo_incontro": "Unico",
+                    "giornate": [
+                      {
+                        "giornata": "Giornata 01",
+                        "partite": [
+                          {
+                            "data": "26/09/2025",
+                            "ora": "19:00",
+                            "home_nome": "RUGBY VIADANA 1970 SSD ARL",
+                            "home_logo": "LCxDJFItM0RXLTMsUi4jQFkKYAo=",
+                            "guest_nome": "RUGBY ROVIGO DELTA SRL SSD",
+                            "guest_logo": "LCwzJFYsMyhRLSM4Vi1TNFYKYAo=",
+                            "punteggio": "14:40",
+                            "arbitro": "ROSELLA,FRANCO (RM)",
+                            "esito": "DISPUTATA",
+                            "campo": "STADIO TOMMASO FATTORI",
+                            "provvisorio": " ",
+                            "rettificato": " ",
+                            "giudiceLinea1": "CHIRNOAGA,GABRIEL IONUT",
+                            "giudice1Pv": "RM",
+                            "giudiceLinea2": "PIER'ANTONI,FRANCESCO",
+                            "giudice2Pv": "RM",
+                            "tmo": "SCHIPANI,VINCENZO",
+                            "tmoPv": "BN"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "classifica": []
+  }
+}
