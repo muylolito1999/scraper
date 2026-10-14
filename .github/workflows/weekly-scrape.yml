@@ -1,0 +1,91 @@
+name: Weekly FIR officials scrape
+
+# Every Thursday at 00:00 Italian time, scrape officials for Thursday → next
+# Wednesday and commit the result to output/<YYYY-MM-DD>.txt.
+# GitHub cron is UTC-only, so both offsets are scheduled and the gate job
+# keeps only the one that is midnight in Rome (CEST in summer, CET in winter).
+on:
+  schedule:
+    - cron: "0 22 * * 3" # 00:00 CEST
+    - cron: "0 23 * * 3" # 00:00 CET
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly-scrape
+
+env:
+  TZ: Europe/Rome
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+    steps:
+      - id: check
+        env:
+          EVENT: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          offset="$(date +%z)"
+          case "$EVENT|$SCHEDULE|$offset" in
+            workflow_dispatch\|*|"schedule|0 22 * * 3|+0200"|"schedule|0 23 * * 3|+0100")
+              echo "run=true" >> "$GITHUB_OUTPUT" ;;
+            *)
+              echo "Not midnight in Rome for '$SCHEDULE' (offset $offset), skipping"
+              echo "run=false" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+  scrape:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Compute season and date range
+        id: meta
+        run: |
+          year="$(date +%Y)"
+          # Same rule as the FIR match centre: before July is the previous season
+          if [ "$(date +%-m)" -lt 7 ]; then year=$((year - 1)); fi
+          echo "season=$year/$((year + 1))" >> "$GITHUB_OUTPUT"
+          echo "range=$(date +%d/%m/%Y)-$(date -d '+6 days' +%d/%m/%Y)" >> "$GITHUB_OUTPUT"
+          echo "file=output/$(date +%Y-%m-%d).txt" >> "$GITHUB_OUTPUT"
+
+      - name: Run scraper
+        env:
+          SEASON: ${{ steps.meta.outputs.season }}
+          RANGE: ${{ steps.meta.outputs.range }}
+          FILE: ${{ steps.meta.outputs.file }}
+        run: |
+          mkdir -p output
+          npm start -- --season "$SEASON" --date "$RANGE" --out "$FILE"
+          echo "=== $FILE ($(($(wc -l < "$FILE") - 1)) records) ==="
+          cat "$FILE"
+
+      - name: Commit output
+        env:
+          RANGE: ${{ steps.meta.outputs.range }}
+          FILE: ${{ steps.meta.outputs.file }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$FILE"
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Weekly officials $RANGE"
+          git pull --rebase
+          git push

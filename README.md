@@ -78,6 +78,12 @@ npm start -- --season 2026/2027 --provinces BO,MO,PR --date 01/02/2027-28/02/202
 npm start -- --season 2026/2027 --dry-run --log-level debug
 ```
 
+## Scheduled runs
+
+`.github/workflows/weekly-scrape.yml` runs every Thursday at 00:00 Italian time. It scrapes officials for Thursday through the following Wednesday (current season, default provinces) and commits the result to `output/YYYY-MM-DD.txt`. It can also be started by hand from the Actions tab ("Run workflow"), which covers today plus 6 days.
+
+`.github/workflows/scrape.yml` is the manual workflow with custom season, date and provinces; its CSV is attached to the run as an artifact.
+
 ## Output format
 
 CSV with columns:
