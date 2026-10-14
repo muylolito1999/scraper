@@ -4,6 +4,12 @@ export const DEFAULT_PROVINCES = new Set([
   'BO', 'FE', 'FC', 'MO', 'PR', 'PC', 'RA', 'RE', 'RN',
 ]);
 
+// Officials always extracted regardless of the province filter
+// (refs from other provinces who are now part of our group). Matched on name only.
+export const ALWAYS_INCLUDED_OFFICIALS = [
+  { surname: 'MERLI', name: 'DARIO' },
+];
+
 export const DEFAULT_DELAY_MS = 500;
 
 export const RETRY_CONFIG = {
@@ -25,8 +31,10 @@ export const ROLE_SORT_ORDER: Record<string, number> = {
 
 export const CATEGORY_SORT_ORDER: string[] = [
   'SERIE A "ELITE" MASCHILE',
-  'SUPER COPPA ITALIA MASCHILE',
+  'SUPER COPPA MASCHILE',
+  'COPPA ITALIA MASCHILE',
   'SERIE A "ELITE" FEMMINILE',
+  'COPPA CONFERENCE FEMMIN.',
   'SERIE A1',
   'SERIE A FEMMINILE',
   'SERIE B',

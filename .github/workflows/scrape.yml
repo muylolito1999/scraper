@@ -6,11 +6,11 @@ on:
       season:
         description: "Season (YYYY/YYYY)"
         required: true
-        default: "2025/2026"
+        default: "2026/2027"
       date:
         description: "Date or range (DD/MM/YYYY or DD/MM/YYYY-DD/MM/YYYY)"
         required: false
-        default: "01/05/2026-03/05/2026"
+        default: ""
       provinces:
         description: "Comma-separated province codes (leave empty for default Emilia-Romagna)"
         required: false

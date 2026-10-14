@@ -18,7 +18,7 @@ export interface ChampionshipDetail {
 
 export interface Phase {
   fase: string;
-  visualizzazione: string; // "1" or "2"
+  visualizzazione: string; // "1", "2", "4"
   gironi: Group[];
 }
 

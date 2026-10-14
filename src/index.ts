@@ -9,10 +9,10 @@ import { writeOutput } from './output/writer.js';
 import type { OfficialRecord } from './types.js';
 
 function parseSeason(input: string): { seasonCode: string; sessionId: string } {
-  // Accept "2025/2026" or "20252026"
+  // Accept "2026/2027" or "20262027"
   const cleaned = input.replace('/', '');
   if (!/^\d{8}$/.test(cleaned)) {
-    throw new Error(`Invalid season format: "${input}". Expected "2025/2026" or "20252026".`);
+    throw new Error(`Invalid season format: "${input}". Expected "2026/2027" or "20262027".`);
   }
   const startYear = parseInt(cleaned.substring(0, 4), 10);
   const endYear = parseInt(cleaned.substring(4, 8), 10);
@@ -83,8 +83,8 @@ Options:
   --out <path>             Output file path (default: output.txt)
   --provinces <codes>      Comma-separated province codes
                            (default: BO,FE,FC,MO,PR,PC,RA,RE,RN)
-  --date <date|range>      Filter by date (e.g. 14/02/2026)
-                           or date range (e.g. 14/02/2026-16/02/2026)
+  --date <date|range>      Filter by date (e.g. 14/02/2027)
+                           or date range (e.g. 14/02/2027-16/02/2027)
   --dry-run                Fetch and parse but only print summary
   --delay <ms>             Delay between API requests (default: 500)
   --log-level <level>      debug|info|warn|error (default: info)
@@ -94,7 +94,7 @@ Options:
   }
 
   if (!values.season) {
-    throw new Error('--season is required. Example: --season 2025/2026');
+    throw new Error('--season is required. Example: --season 2026/2027');
   }
 
   const { seasonCode, sessionId } = parseSeason(values.season);

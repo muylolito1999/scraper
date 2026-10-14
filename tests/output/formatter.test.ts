@@ -124,6 +124,20 @@ describe('sortRecords', () => {
     );
   });
 
+  it('places cup competitions by priority (2026/27 categories)', () => {
+    const records = [
+      makeRecord({ match: makeContext({ category: 'SERIE A1' }) }),
+      makeRecord({ match: makeContext({ category: 'COPPA CONFERENCE FEMMIN.' }) }),
+      makeRecord({ match: makeContext({ category: 'COPPA ITALIA MASCHILE' }) }),
+      makeRecord({ match: makeContext({ category: 'SUPER COPPA MASCHILE' }) }),
+    ];
+    const sorted = sortRecords(records);
+    assert.deepEqual(
+      sorted.map((r) => r.match.category),
+      ['SUPER COPPA MASCHILE', 'COPPA ITALIA MASCHILE', 'COPPA CONFERENCE FEMMIN.', 'SERIE A1'],
+    );
+  });
+
   it('sorts by girone within same category', () => {
     const records = [
       makeRecord({ match: makeContext({ category: 'SERIE A1', group: 'Girone 2' }) }),

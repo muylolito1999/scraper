@@ -74,4 +74,19 @@ describe('filterByProvinces', () => {
     const result = filterByProvinces([], new Set(['BO']));
     assert.equal(result.length, 0);
   });
+
+  it('always includes MERLI DARIO outside the target provinces', () => {
+    const merli = { ...makeRecord('AN'), surname: 'MERLI', name: 'DARIO' };
+    const records = [merli, makeRecord('AN'), makeRecord('BO')];
+    const result = filterByProvinces(records, new Set(['BO']));
+    assert.equal(result.length, 2);
+    assert.equal(result[0].surname, 'MERLI');
+    assert.equal(result[1].province, 'BO');
+  });
+
+  it('includes MERLI DARIO regardless of province (including missing)', () => {
+    const records = ['RM', ''].map((pv) => ({ ...makeRecord(pv), surname: 'MERLI', name: 'DARIO' }));
+    const result = filterByProvinces(records, new Set(['BO']));
+    assert.equal(result.length, 2);
+  });
 });

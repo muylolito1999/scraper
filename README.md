@@ -11,7 +11,7 @@ The scraper runs a five-stage pipeline:
 1. **Fetch championships** — queries the FIR API (`federugby.it/matchcentre/firapi.php`) for all domestic championships in the given season.
 2. **Fetch details** — for each championship, fetches the full hierarchy of phases, groups, matchdays, and matches, with a configurable delay between requests to avoid rate-limiting.
 3. **Extract officials** — walks the nested hierarchy using generator functions and parses official names and provinces from each match (up to 4 per match: referee, two assistants, TMO).
-4. **Filter** — keeps only officials whose province is in the target set. Optionally filters by date or date range.
+4. **Filter** — keeps only officials whose province is in the target set, plus anyone listed in `ALWAYS_INCLUDED_OFFICIALS` (`src/config.ts`), e.g. MERLI DARIO (matched on name, any province). Optionally filters by date or date range.
 5. **Output** — sorts results and writes RFC 4180-compliant CSV.
 
 ## Project structure
@@ -50,7 +50,7 @@ tests/
 
 ```bash
 npm install
-npm start -- --season 2025/2026
+npm start -- --season 2026/2027
 ```
 
 ### CLI flags
@@ -69,13 +69,13 @@ npm start -- --season 2025/2026
 
 ```bash
 # Scrape full season, default provinces
-npm start -- --season 2025/2026
+npm start -- --season 2026/2027
 
 # Specific provinces and date range
-npm start -- --season 2025/2026 --provinces BO,MO,PR --date 01/02/2026-28/02/2026
+npm start -- --season 2026/2027 --provinces BO,MO,PR --date 01/02/2027-28/02/2027
 
 # Dry run with debug logging
-npm start -- --season 2025/2026 --dry-run --log-level debug
+npm start -- --season 2026/2027 --dry-run --log-level debug
 ```
 
 ## Output format
