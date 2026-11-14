@@ -3,3 +3,5 @@ dist/
 output.txt
 *.log
 .env
+__pycache__/
+*.py[cod]

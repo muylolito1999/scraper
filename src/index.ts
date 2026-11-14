@@ -6,6 +6,7 @@ import { extractMatches } from './parser/hierarchy.js';
 import { extractOfficials } from './parser/officials.js';
 import { filterByProvinces } from './filter/provinces.js';
 import { writeOutput } from './output/writer.js';
+import { writeManifest } from './output/manifest.js';
 import type { OfficialRecord } from './types.js';
 
 function parseSeason(input: string): { seasonCode: string; sessionId: string } {
@@ -69,6 +70,7 @@ function parseCliArgs() {
       'dry-run': { type: 'boolean', default: false },
       delay: { type: 'string', default: String(DEFAULT_DELAY_MS) },
       'log-level': { type: 'string', default: 'info' },
+      manifest: { type: 'string' },
       help: { type: 'boolean', default: false },
     },
     strict: true,
@@ -88,6 +90,7 @@ Options:
   --dry-run                Fetch and parse but only print summary
   --delay <ms>             Delay between API requests (default: 500)
   --log-level <level>      debug|info|warn|error (default: info)
+  --manifest <path>        Publish a hashed latest-result manifest (requires --date)
   --help                   Show this help
 `);
     process.exit(0);
@@ -105,6 +108,9 @@ Options:
   const logLevel = values['log-level'] as LogLevel;
 
   const dateRange = values.date ? parseDateRange(values.date) : undefined;
+  if (values.manifest && (!dateRange || values['dry-run'])) {
+    throw new Error('--manifest requires --date and cannot be used with --dry-run');
+  }
 
   return {
     seasonCode,
@@ -115,6 +121,7 @@ Options:
     dryRun: values['dry-run']!,
     delayMs,
     logLevel,
+    manifestPath: values.manifest,
   };
 }
 
@@ -134,6 +141,12 @@ async function main() {
 
   // Step 2: Fetch details for each championship
   const allDetails = await fetchAllDetails(championships, args.sessionId, args.delayMs);
+  if (allDetails.length === 0) {
+    throw new Error('No championship details fetched; refusing to publish an apparently empty week');
+  }
+  const fetchedIds = new Set(allDetails.map(({ championship }) => championship.id));
+  const warnings = championships.filter((c) => !fetchedIds.has(c.id))
+    .map((c) => `Dettagli FIR non disponibili: ${c.nome} (${c.id})`);
 
   // Step 3: Extract all officials from all matches
   const allRecords: OfficialRecord[] = [];
@@ -181,6 +194,16 @@ async function main() {
     }
   } else {
     await writeOutput(filtered, args.outPath);
+    if (args.manifestPath && args.dateRange) {
+      await writeManifest(args.manifestPath, args.outPath, {
+        from: args.dateRange.from,
+        to: args.dateRange.to,
+        season: `${args.seasonCode.slice(0, 4)}/${args.seasonCode.slice(4)}`,
+        records: filtered.length,
+        warnings,
+      });
+      log('info', `Published manifest: ${args.manifestPath}`);
+    }
   }
 }
 

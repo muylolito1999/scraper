@@ -1,13 +1,13 @@
 name: Weekly FIR officials scrape
 
-# Every Thursday at 00:00 Italian time, scrape officials for Thursday → next
+# Every Thursday at 15:00 Italian time, scrape officials for Thursday → next
 # Wednesday and commit the result to output/<YYYY-MM-DD>.txt.
 # GitHub cron is UTC-only, so both offsets are scheduled and the gate job
-# keeps only the one that is midnight in Rome (CEST in summer, CET in winter).
+# keeps only the correct Rome offset (CEST in summer, CET in winter).
 on:
   schedule:
-    - cron: "0 22 * * 3" # 00:00 CEST
-    - cron: "0 23 * * 3" # 00:00 CET
+    - cron: "0 13 * * 4" # 15:00 CEST
+    - cron: "0 14 * * 4" # 15:00 CET
   workflow_dispatch:
 
 permissions:
@@ -32,10 +32,10 @@ jobs:
         run: |
           offset="$(date +%z)"
           case "$EVENT|$SCHEDULE|$offset" in
-            workflow_dispatch\|*|"schedule|0 22 * * 3|+0200"|"schedule|0 23 * * 3|+0100")
+            workflow_dispatch\|*|"schedule|0 13 * * 4|+0200"|"schedule|0 14 * * 4|+0100")
               echo "run=true" >> "$GITHUB_OUTPUT" ;;
             *)
-              echo "Not midnight in Rome for '$SCHEDULE' (offset $offset), skipping"
+              echo "Not the 15:00 Rome schedule for '$SCHEDULE' (offset $offset), skipping"
               echo "run=false" >> "$GITHUB_OUTPUT" ;;
           esac
 
@@ -43,6 +43,7 @@ jobs:
     needs: gate
     if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v5
 
@@ -70,7 +71,8 @@ jobs:
           FILE: ${{ steps.meta.outputs.file }}
         run: |
           mkdir -p output
-          npm start -- --season "$SEASON" --date "$RANGE" --out "$FILE"
+          set -o pipefail
+          npm start -- --season "$SEASON" --date "$RANGE" --out "$FILE" --manifest output/latest.json 2>&1 | tee output/scrape.log
           echo "=== $FILE ($(($(wc -l < "$FILE") - 1)) records) ==="
           cat "$FILE"
 
@@ -81,7 +83,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$FILE"
+          git add "$FILE" output/latest.json
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
@@ -89,3 +91,12 @@ jobs:
           git commit -m "Weekly officials $RANGE"
           git pull --rebase
           git push
+
+      - name: Save extraction log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fir-extraction-log-${{ github.run_id }}
+          path: output/scrape.log
+          if-no-files-found: warn
+          retention-days: 30

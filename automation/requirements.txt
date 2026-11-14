@@ -1,0 +1,3 @@
+Pillow>=9.4,<13
+fonttools>=4,<5
+tzdata>=2025.1

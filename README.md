@@ -80,7 +80,15 @@ npm start -- --season 2026/2027 --dry-run --log-level debug
 
 ## Scheduled runs
 
-`.github/workflows/weekly-scrape.yml` runs every Thursday at 00:00 Italian time. It scrapes officials for Thursday through the following Wednesday (current season, default provinces) and commits the result to `output/YYYY-MM-DD.txt`. It can also be started by hand from the Actions tab ("Run workflow"), which covers today plus 6 days.
+`.github/workflows/weekly-scrape.yml` is scheduled every **Thursday at 15:00 Europe/Rome**, with a DST gate for summer/winter time. GitHub Actions may start later when runners are busy. It scrapes officials for Thursday through the following Wednesday (current season, default provinces), covering the weekend and any matches on adjacent days, and commits the result to `output/YYYY-MM-DD.txt` and `output/latest.json`. It can also be started by hand from the Actions tab ("Run workflow"), which covers today plus 6 days. Extraction logs are attached to each run for 30 days.
+
+`output/latest.json` contains the source interval, extraction timestamp, record count, SHA-256 of the exact CSV, and warnings for championships whose details could not be fetched. A total failure to fetch championship details fails the run instead of publishing an apparently empty week.
+
+### Local Instagram graphics
+
+The Windows companion in [`automation/`](automation/README.md) downloads the published CSV into the existing `Grafiche-Rugby` folder and calls its local generator. It produces one 1080 × 1080 PNG per supported assignment and a ZIP. Missing portraits/role variants, unknown logos, incomplete data and unsupported font characters are recorded in a readable log; valid assignments continue independently.
+
+The companion checks every 10 minutes and at sign-in. It checks freshness and hashes, skips unchanged inputs, and retries the graphics after local assets/configuration change. The GitHub token is not needed or stored for these public downloads. Portraits, logos and the Flama font stay on the local computer and are not uploaded to this public repository.
 
 `.github/workflows/scrape.yml` is the manual workflow with custom season, date and provinces; its CSV is attached to the run as an artifact.
 
@@ -89,7 +97,7 @@ npm start -- --season 2026/2027 --dry-run --log-level debug
 CSV with columns:
 
 ```
-Cognome,Nome,Ruolo,Squadra Casa,Squadra Trasferta,Categoria,Fase,Girone,Giornata,Data,Ora,Luogo
+Surname,Name,Role,Team1 vs Team2,Category,Date,Time,Location
 ```
 
 Records are sorted by:
