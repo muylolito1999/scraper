@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "from": "2026-11-14",
-  "to": "2026-11-20",
+  "from": "2026-11-19",
+  "to": "2026-11-25",
   "season": "2026/2027",
-  "records": 14,
+  "records": 0,
   "warnings": [],
-  "file": "output/2026-11-14.txt",
-  "sha256": "8676569b8b1e260fa3b5e90048fe9e64e1029c88c3e347ca484dfdac12e01875",
-  "extractedAt": "2026-11-14T18:42:58.227Z"
+  "file": "output/2026-11-19.txt",
+  "sha256": "6d1299b4c24e04b3aa9c192e42066c63b47b48188478f9a933e8b86954060850",
+  "extractedAt": "2026-11-19T10:18:33.688Z"
 }
